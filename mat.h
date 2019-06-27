@@ -1,10 +1,6 @@
 #ifndef MAT_H
 #define	MAT_H
 
-#include <vector>
-#include <fstream>
-#include <iostream>
-
 using namespace std;
 
 class row {
@@ -31,6 +27,7 @@ class mat {
         void fillRand(int minValue, int maxValue);
         mat& operator<< (const int input);
         row operator[] (const int index);
+        bool compare(const mat& ref);
 
         void t(); //sequential transpose
         void t(int num_thread);  //multi thread transpose

@@ -1,6 +1,5 @@
-#include <vector>
-#include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <pthread.h>
 #include "mat.h"
 #include "multiThread.h"
@@ -29,7 +28,7 @@ mat::~mat() {
 void mat::print() {
     for (int i = 0; i < n_rows; i++) {
         for (int j = 0; j < n_cols; j++) {
-            cout << data[i * n_cols + j] << ", ";
+            cout << setw(4) << right << data[i * n_cols + j];
         }
         cout << endl;
     }
@@ -54,6 +53,7 @@ void mat::fillRand(int minValue, int maxValue) {
     for (int i = 0; i < n_rows * n_cols; i++) {
         data[i] = rand() % maxValue + minValue;
     }
+    counter = n_rows * n_cols;
 }
 
 mat& mat::operator<< (const int input) {
@@ -73,6 +73,18 @@ row mat::operator[] (const int index) {
     else {
         cout << "Out of range!" << endl;
     }
+}
+
+bool mat::compare(const mat& ref) {
+    if (n_rows != ref.n_rows || n_cols != ref.n_cols) {
+        return false;
+    }
+    else {
+      for (int i = 0; i < n_rows * n_cols; i++)
+          if (data[i] != ref.data[i]) return false;
+
+    }
+    return true;
 }
 
 void mat::t() {
@@ -101,7 +113,6 @@ void mat::t(int num_thread) {
     A.c = n_cols;
 
     for (int i = 0; i < num_thread; i++) {
-        A.core = i;
         pthread_create(&threads[i], NULL, multiThread::multiTranspose, (void *)&A);
     }
 
@@ -110,11 +121,13 @@ void mat::t(int num_thread) {
     }
 
     delete [] data;
+    multiThread::core = 0;
     data = tmp;
 
     int a = n_rows;
     n_rows = n_cols;
     n_cols = a;
+
 }
 
 

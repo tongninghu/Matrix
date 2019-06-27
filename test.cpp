@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) {
     B.print();
 
     int n = MAX_THREAD;
-    B.t(n);
+    B.tr(n);
     cout << "after multiTranspose, B: " << endl;
     B.print();
     return 0;
