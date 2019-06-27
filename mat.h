@@ -32,7 +32,8 @@ class mat {
         mat& operator<< (const int input);
         row operator[] (const int index);
 
-        void t();
+        void t(); //sequential transpose
+        void t(int num_thread);  //multi thread transpose
 };
 
 #endif

@@ -1,7 +1,9 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <pthread.h>
 #include "mat.h"
+#include "multiThread.h"
 
 using namespace std;
 
@@ -88,7 +90,32 @@ void mat::t() {
     n_cols = a;
 }
 
+void mat::t(int num_thread) {
+    int * tmp = new int[n_rows * n_cols];
+    pthread_t threads[num_thread];
 
+    arg_struct A;
+    A.tmp = tmp;
+    A.data = data;
+    A.r = n_rows;
+    A.c = n_cols;
+
+    for (int i = 0; i < num_thread; i++) {
+        A.core = i;
+        pthread_create(&threads[i], NULL, multiThread::multiTranspose, (void *)&A);
+    }
+
+    for (int i = 0; i < num_thread; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    delete [] data;
+    data = tmp;
+
+    int a = n_rows;
+    n_rows = n_cols;
+    n_cols = a;
+}
 
 
 row::row(): data(NULL) {

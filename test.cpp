@@ -7,6 +7,7 @@
 #include <string>
 #include "mat.h"
 
+#define MAX_THREAD 4
 using namespace std;
 
 int main(int argc, char * argv[]) {
@@ -27,7 +28,12 @@ int main(int argc, char * argv[]) {
     cout << "counter = " << B.counter << endl;
     cout << B[0][3] << endl;
     B.t();
-    cout << "after transpose, B: " << endl;
+    cout << "after tsranspose, B: " << endl;
+    B.print();
+
+    int n = MAX_THREAD;
+    B.t(n);
+    cout << "after multiTranspose, B: " << endl;
     B.print();
     return 0;
 }
