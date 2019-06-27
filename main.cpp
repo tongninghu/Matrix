@@ -26,5 +26,8 @@ int main(int argc, char * argv[]) {
     B.print();
     cout << "counter = " << B.counter << endl;
     cout << B[0][3] << endl;
+    B.t();
+    cout << "after transpose, B: " << endl;
+    B.print();
     return 0;
 }

@@ -9,15 +9,15 @@ using namespace std;
 
 class row {
     public:
-        double * data;
+        int * data;
         int length;
         row();
-        double operator[] (const int index);
+        int operator[] (const int index);
 };
 
 class mat {
     private:
-        double * data;
+        int * data;
     public:
         int n_rows;
         int n_cols;
@@ -27,9 +27,12 @@ class mat {
         ~mat();
         void print();
         void set_size(int row, int col);
-        void fill(double num);
-        mat& operator<< (const double input);
+        void fill(int num);
+        void fillRand(int minValue, int maxValue);
+        mat& operator<< (const int input);
         row operator[] (const int index);
+
+        void t();
 };
 
 #endif
