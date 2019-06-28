@@ -7,10 +7,8 @@
 #include <string>
 #include "mat.h"
 
-#define MAX_THREAD 4
 using namespace std;
 
-int num = MAX_THREAD;
 
 int main(int argc, char * argv[]) {
   mat A(23, 14);
@@ -19,7 +17,7 @@ int main(int argc, char * argv[]) {
   A.print();
 
   A.t();
-  A.t(num);
+  A.t_m();
   cout << "after transpose twice, B: " << endl;
   A.print();
 
@@ -29,7 +27,7 @@ int main(int argc, char * argv[]) {
   B.print();
 
   B.t();
-  B.t(num);
+  B.t_m();
   cout << "after transpose twice, B: " << endl;
   B.print();
   return 0;

@@ -2,7 +2,7 @@
 #define	  MULTITHREAD_H
 
 using namespace std;
-
+extern int num_thread;
 
 struct arg_struct {
     int * data;

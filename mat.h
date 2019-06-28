@@ -30,7 +30,9 @@ class mat {
         bool compare(const mat& ref);
 
         void t(); //sequential transpose
-        void t(int num_thread);  //multi thread transpose
+        void t_m();  //multi thread transpose
+        void mul(); //sequential multipys
+        void mul_m();  //multi thread transpose
 };
 
 #endif

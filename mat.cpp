@@ -102,7 +102,7 @@ void mat::t() {
     n_cols = a;
 }
 
-void mat::t(int num_thread) {
+void mat::t_m() {
     int * tmp = new int[n_rows * n_cols];
     pthread_t threads[num_thread];
 
