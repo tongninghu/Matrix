@@ -28,7 +28,7 @@ mat::~mat() {
 void mat::print() {
     for (int i = 0; i < n_rows; i++) {
         for (int j = 0; j < n_cols; j++) {
-            cout << setw(4) << right << data[i * n_cols + j];
+            cout << setw(6) << right << data[i * n_cols + j];
         }
         cout << endl;
     }
@@ -87,6 +87,15 @@ bool mat::compare(const mat& ref) {
     return true;
 }
 
+int& mat::getElement(int row, int col) {
+    if (row < n_rows && col < n_cols) {
+        return data[row * n_cols + col];
+    }
+    else {
+        cout << "Out of range!" << endl;
+    }
+}
+
 void mat::t() {
     int * tmp = new int[n_rows * n_cols];
     for (int i = 0; i < n_rows; i++) {
@@ -106,14 +115,12 @@ void mat::t_m() {
     int * tmp = new int[n_rows * n_cols];
     pthread_t threads[num_thread];
 
-    arg_struct A;
-    A.tmp = tmp;
-    A.data = data;
-    A.r = n_rows;
-    A.c = n_cols;
+    arg_struct Arg;
+    Arg.tmp = tmp;
+    Arg.A = this;
 
     for (int i = 0; i < num_thread; i++) {
-        pthread_create(&threads[i], NULL, multiThread::multiTranspose, (void *)&A);
+        pthread_create(&threads[i], NULL, multiThread::transpose, (void *)&Arg);
     }
 
     for (int i = 0; i < num_thread; i++) {
@@ -121,13 +128,12 @@ void mat::t_m() {
     }
 
     delete [] data;
-    multiThread::core = 0;
+    multiThread::core_transpose = 0;
     data = tmp;
 
     int a = n_rows;
     n_rows = n_cols;
     n_cols = a;
-
 }
 
 
@@ -135,7 +141,7 @@ row::row(): data(NULL) {
     length = 0;
 }
 
-int row::operator[] (const int index) {
+int& row::operator[] (const int index) {
     if (index < length) {
         return data[index];
     }

@@ -7,33 +7,20 @@
 #include <string>
 #include "mat.h"
 
-#define MAX_THREAD 4
 using namespace std;
 
 int main(int argc, char * argv[]) {
-    mat A;
-    A.set_size(2, 3);
-    A.fill(1);
-    cout << "A: " << endl;
-    A.print();
+
     mat B(3, 4);
-    cout << "B: " << endl;
-    B.print();
     B.set_size(5, 6);
     cout << "after set_size, B: " << endl;
     B.print();
+
     B << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8;
     cout << "after insert, B: " << endl;
     B.print();
-    cout << "counter = " << B.counter << endl;
-    cout << B[0][3] << endl;
-    B.t();
-    cout << "after tsranspose, B: " << endl;
-    B.print();
 
-    int n = MAX_THREAD;
-    B.tr(n);
-    cout << "after multiTranspose, B: " << endl;
-    B.print();
-    return 0;
+    cout << B[0][3] << endl;
+    B[0][3] = 40;
+    cout << B[0][3] << endl;
 }

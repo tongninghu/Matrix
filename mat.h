@@ -8,7 +8,7 @@ class row {
         int * data;
         int length;
         row();
-        int operator[] (const int index);
+        int& operator[] (const int index);
 };
 
 class mat {
@@ -28,11 +28,10 @@ class mat {
         mat& operator<< (const int input);
         row operator[] (const int index);
         bool compare(const mat& ref);
+        int& getElement(int row, int col);
 
         void t(); //sequential transpose
         void t_m();  //multi thread transpose
-        void mul(); //sequential multipys
-        void mul_m();  //multi thread transpose
 };
 
 #endif
