@@ -12,16 +12,16 @@ using namespace std;
 
 
 int main(int argc, char * argv[]) {
-  mat A(11, 12);
-  A.fillRand(0, 10);
+  mat A(40, 20);
+  A.fill(1);
   A.print();
   cout << endl;
   /*
   A.t();
   A.print();  */
 
-  mat B(12, 10);
-  B.fillRand(0, 10);
+  mat B(20, 18);
+  B.fill(1);
   B.print();
 //  cout << endl << A.getElement(0, 4) << " " << A.getElement(1, 5) << endl;
  /*
