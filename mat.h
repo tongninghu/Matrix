@@ -11,10 +11,10 @@ class row {
         int& operator[] (const int index);
 };
 
-class mat {
-    private:
-        int * data;
+class mat { 
     public:
+        int * data;
+        string filename;
         int n_rows;
         int n_cols;
         int counter;
@@ -22,16 +22,22 @@ class mat {
         mat(int row, int col);
         ~mat();
         void print();
+        void bufferPrint(vector<int>& buffer, int size, int& count);
         void set_size(int row, int col);
         void fill(int num);
         void fillRand(int minValue, int maxValue);
+        void bufferFill(ofstream& fout, vector<int>& buffer, bool random = false,
+                  int minValue = 0, int maxValue = 0);
         mat& operator<< (const int input);
+        mat& operator= (const mat& ref);
         row operator[] (const int index);
         bool compare(const mat& ref);
-        int& getElement(int row, int col);
+        int getElement(int row, int col);
 
         void t(); //sequential transpose
         void t_m();  //multi thread transpose
+        void bufferTransposeFill(vector<int>& readBuffer, vector<int>& writeBuffer,
+                int rows, int cols, ofstream& fout);
 };
 
 #endif

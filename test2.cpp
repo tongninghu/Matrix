@@ -12,50 +12,31 @@ using namespace std;
 
 
 int main(int argc, char * argv[]) {
-  mat A(7, 6);
+  mat A(11, 12);
   A.fillRand(0, 10);
-  cout << "after fill, A: " << endl;
   A.print();
+  cout << endl;
+  /*
+  A.t();
+  A.print();  */
 
+  mat B(12, 10);
+  B.fillRand(0, 10);
+  B.print();
+//  cout << endl << A.getElement(0, 4) << " " << A.getElement(1, 5) << endl;
+ /*
+  mat C;
+  C = A;
   A.t();
   A.t_m();
-  cout << "after transpose twice, A: " << endl;
-  A.print();
+  cout << C.compare(A) << endl;
 
-  mat B(6, 11);
+  mat B(60, 110);
   B.fillRand(0, 10);
-  cout << "after fill, B: " << endl;
-  B.print();
-
-  B.t();
-  B.t_m();
-  cout << "after transpose twice, B: " << endl;
-  B.print();
-
-  mat C(11, 30);
-  C.fillRand(0, 10);
-  cout << "after fill, C: " << endl;
-  C.print();
-
-  C.t();
-  C.t_m();
-  cout << "after transpose twice, C: " << endl;
-  C.print();
-
-  cout << "A*B: " << endl;
-  mat O1 = matOperations::mul(A, B);
-  O1.print();
-
-  cout << "A*B: " << endl;
-  mat O2 = matOperations::mul_m(A, B);
-  O2.print();
-
-  cout << "A*B*C: " << endl;
-  mat O3 = matOperations::mul(O1, C);
-  O3.print();
-
-  cout << "A*B*C: " << endl;
-  mat O4 = matOperations::mul_m(O2, C);
-  O4.print();
+*/
+  cout << endl;
+  mat * t = &matOperations::mul(A, B);
+  t->print();
+  delete t;
   return 0;
 }

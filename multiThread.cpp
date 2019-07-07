@@ -40,7 +40,7 @@ void* multiThread::multiply(void * arguments) {
                 for (int k = 0; k < s; k++) {
                     sum += A->getElement(i, k) * B->getElement(k, j);
                 }
-                OUT->getElement(i, j) = sum;
+              //  OUT->getElement(i, j) = sum;
             }
         }
 }
