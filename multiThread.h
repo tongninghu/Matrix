@@ -7,17 +7,16 @@ using namespace std;
 extern int num_thread;
 
 struct arg_struct {
-    int * tmp;
-    mat * A;
-    mat * B;
-    mat * OUT;
+    int * left;
+    int * right;
+    int * output;
+    int n_rows;
+    int n_cols;
 };
 
 class multiThread {
 public:
-    static void * transpose(void * arguments);
     static void * multiply(void * arguments);
-    static int core_transpose;
     static int core_multiply;
 };
 

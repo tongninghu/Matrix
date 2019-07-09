@@ -6,10 +6,9 @@ using namespace std;
 
 class matOperations {
     public:
-        static mat& mul(mat& A, mat& B); //sequential multiply
-        static mat& mul_m(mat& A, mat& B);  //multi thread multiply
-        static void bufferMultiply(int * leftBuffer, int * rightBuffer,
-              int * writeBuffer, int rows, int cols);
+        static mat& mul(mat& A, mat& B, bool multiThread = false); //sequential multiply
+        static void bufferMultiply(int * left, int * right, int * output,
+            int n_rows, int n_cols, bool multiThread);
 };
 
 #endif

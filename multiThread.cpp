@@ -8,41 +8,20 @@ using namespace std;
 
 int num_thread = 4;
 
-void * multiThread::transpose(void * arguments) {
-    struct arg_struct *args = (struct arg_struct *)arguments;
-    int r = args->A->n_rows;
-    int c = args->A->n_cols;
-    int step = core_transpose++;
-
-    for (int i = step * r / num_thread; i < (step + 1) * r / num_thread; i++) {
-        for (int j = 0; j < c; j++) {
-            args->tmp[j * r + i] = args->A->getElement(i, j);
-        }
-    }
-}
-
-int multiThread::core_transpose = 0;
-
-
 void* multiThread::multiply(void * arguments) {
       struct arg_struct *args = (struct arg_struct *)arguments;
-      mat * A = args->A;
-      mat * B = args->B;
-      mat * OUT = args->OUT;
-      int r = A->n_rows;
-      int c = B->n_cols;
-      int s = A->n_cols;
+      int *left = args->left;
+      int *right = args->right;
+      int *output = args->output;
+      int n_rows = args->n_rows;
+      int n_cols = args->n_cols;
       int step = core_multiply++;
 
-        for (int i = step * r / num_thread; i < (step + 1) * r / num_thread; i++) {
-            for (int j = 0; j < c; j++) {
-                int sum = 0;
-                for (int k = 0; k < s; k++) {
-                    sum += A->getElement(i, k) * B->getElement(k, j);
-                }
-              //  OUT->getElement(i, j) = sum;
-            }
-        }
+      for (int i = 0; i < n_rows; i++) {
+          for (int j = step * n_cols / num_thread; j < (step + 1) * n_cols / num_thread; j++) {
+              output[j] += left[i] * right[n_cols * i + j];
+          }
+      }
 }
 
 int multiThread::core_multiply = 0;

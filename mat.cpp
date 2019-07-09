@@ -5,9 +5,10 @@
 #include <iomanip>
 #include <pthread.h>
 #include "mat.h"
+#include "matOperations.h"
 #include "multiThread.h"
 
-#define BUFFERSIZE 15
+#define BUFFERSIZE 50
 #define HEAPSIZE 100
 using namespace std;
 
@@ -82,6 +83,7 @@ void mat::print() {
         }
         fin.close();
     }
+    cout << endl;
 }
 
 void mat::bufferPrint(vector<int>& buffer, int size, int& count) {
@@ -159,9 +161,36 @@ mat& mat::operator= (const mat& ref) {
     n_rows = ref.n_rows;
     n_cols = ref.n_cols;
     counter = ref.counter;
-    data = new int[n_rows * n_cols];
-    for (int i = 0; i < n_rows * n_cols; i++) {
-        data[i] = ref.data[i];
+
+    if (n_rows * n_cols < HEAPSIZE) {
+        data = new int[n_rows * n_cols];
+        for (int i = 0; i < n_rows * n_cols; i++) {
+            data[i] = ref.data[i];
+        }
+    }
+    else {
+        data = NULL;
+        if (filename == "") {
+            int file_index = rand() % 100;
+            filename = "./file/" + to_string(file_index) + ".txt";
+
+            while (ifstream(filename)) {
+                file_index = rand() % 100;
+                filename = "./file/" + to_string(file_index) + ".txt";
+            }
+        }
+
+        ifstream fin(ref.filename, ios::binary);
+        ofstream fout(filename, ios::binary);
+        int buf[BUFFERSIZE];
+
+        do {
+           fin.read((char *)&buf[0], BUFFERSIZE);
+           fout.write((char *)&buf[0], fin.gcount());
+        } while (fin.gcount() > 0);
+
+        fin.close();
+        fout.close();
     }
     return *this;
 }
@@ -208,93 +237,68 @@ int mat::getElement(int row, int col) {
 }
 
 void mat::t() {
-    if (n_rows * n_cols < HEAPSIZE) {
-        int * tmp = new int[n_rows * n_cols];
-        for (int i = 0; i < n_rows; i++) {
-            for (int j = 0; j < n_cols; j++) {
-                tmp[j * n_rows + i] = data[i * n_cols + j];
-            }
-        }
-        delete [] data;
-        data = tmp;
+    int file_index = rand() % 100;
+    string tempfile = "./file/" + to_string(file_index) + ".txt";
+
+    while (ifstream(tempfile)) {
+        file_index = rand() % 100;
+        tempfile = "./file/" + to_string(file_index) + ".txt";
     }
-    else {
-        int file_index = rand() % 100;
-        string tempfile = "./file/" + to_string(file_index) + ".txt";
 
-        while (ifstream(tempfile)) {
-            file_index = rand() % 100;
-            tempfile = "./file/" + to_string(file_index) + ".txt";
+    ofstream fout(tempfile, ios::binary);
+    ifstream fin(filename, ios::binary);
+    int size = BUFFERSIZE / n_cols * n_cols;
+    int rows = BUFFERSIZE / n_cols;
+    int readBuffer [size];
+    int writeBuffer [n_rows];
+    int * temp = new int[n_rows * n_cols];
+    bool toFile = ((n_rows * n_cols >= HEAPSIZE) ? true : false);
+
+    for (int j = 0; j < n_cols; j++) {
+        int *output = (toFile)? writeBuffer : &temp[j * n_rows];
+
+        for (int i = 0; i < n_rows / rows; i++) {
+            if (toFile) fin.read((char *)&readBuffer[0], sizeof(int) * size);
+            int *input = (toFile)? &readBuffer[0] : &data[i * size];
+
+            bufferTranspose(input, output, rows, rows, i, j);
         }
 
-        ofstream fout(tempfile, ios::binary);
-        ifstream fin(filename, ios::binary);
-        int size = BUFFERSIZE / n_cols * n_cols;
-        int rows = BUFFERSIZE / n_cols;
-        vector<int> readBuffer (size, 0);
-        vector<int> writeBuffer;
+        if (n_rows % rows != 0) {
+            if (toFile) fin.read((char *)&readBuffer[0], sizeof(int) * (n_rows % rows) * n_cols);
+            int *input = (toFile)? &readBuffer[0] : &data[n_rows / rows * size];
 
-        for (int j = 0; j < n_cols; j++) {
-            for (int i = 0; i < n_rows / rows; i++) {
-                fin.read((char *)&readBuffer[0], sizeof(int) * size);
-                this->bufferTransposeFill(readBuffer, writeBuffer, rows, j, fout);
-            }
+            bufferTranspose(input, output, n_rows % rows, rows, n_rows / rows, j);
+        }
 
-            if (n_rows % rows != 0) {
-                fin.read((char *)&readBuffer[0], sizeof(int) * (n_rows % rows) * n_cols);
-                this->bufferTransposeFill(readBuffer, writeBuffer, n_rows % rows, j, fout);
-            }
-            fin.clear();
-            fin.seekg(0, ios::beg);
-        }
-        if (writeBuffer.size() != 0) {
-            fout.write((char *)&writeBuffer[0], sizeof(int) * writeBuffer.size());
-        }
-        fin.close();
-        fout.close();
+        if (toFile) fout.write((char *)&output[0], sizeof(int) * n_rows);
+
+        fin.clear();
+        fin.seekg(0, ios::beg);
+    }
+
+    if (toFile) {
         remove(&filename[0]);
         filename = tempfile;
+        delete [] temp;
     }
-    int a = n_rows;
+    else {
+      delete [] data;
+      data = temp;
+      remove(&tempfile[0]);
+    }
+    fin.close();
+    fout.close();
+    int tmp = n_rows;
     n_rows = n_cols;
-    n_cols = a;
+    n_cols = tmp;
 }
 
-void mat::bufferTransposeFill(vector<int>& readBuffer, vector<int>& writeBuffer,
-        int rows, int cols, ofstream& fout) {
+void mat::bufferTranspose(int * input, int * output, int n_rows, int n_rows2, int row, int col) {
 
-    for (int i = 0; i < rows; i++) {
-        if (writeBuffer.size() == BUFFERSIZE) {
-            fout.write((char *)&writeBuffer[0], sizeof(int) * BUFFERSIZE);
-            writeBuffer.clear();
-        }
-        writeBuffer.push_back(readBuffer[i * n_cols + cols]);
+    for (int i = 0; i < n_rows; i++) {
+        output[i + n_rows2 * row] = input[i * n_cols + col];
     }
-}
-
-void mat::t_m() {
-    int * tmp = new int[n_rows * n_cols];
-    pthread_t threads[num_thread];
-
-    arg_struct Arg;
-    Arg.tmp = tmp;
-    Arg.A = this;
-
-    for (int i = 0; i < num_thread; i++) {
-        pthread_create(&threads[i], NULL, multiThread::transpose, (void *)&Arg);
-    }
-
-    for (int i = 0; i < num_thread; i++) {
-        pthread_join(threads[i], NULL);
-    }
-
-    delete [] data;
-    multiThread::core_transpose = 0;
-    data = tmp;
-
-    int a = n_rows;
-    n_rows = n_cols;
-    n_cols = a;
 }
 
 

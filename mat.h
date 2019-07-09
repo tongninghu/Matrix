@@ -11,7 +11,7 @@ class row {
         int& operator[] (const int index);
 };
 
-class mat { 
+class mat {
     public:
         int * data;
         string filename;
@@ -27,7 +27,8 @@ class mat {
         void fill(int num);
         void fillRand(int minValue, int maxValue);
         void bufferFill(ofstream& fout, vector<int>& buffer, bool random = false,
-                  int minValue = 0, int maxValue = 0);
+            int minValue = 0, int maxValue = 0);
+
         mat& operator<< (const int input);
         mat& operator= (const mat& ref);
         row operator[] (const int index);
@@ -35,9 +36,8 @@ class mat {
         int getElement(int row, int col);
 
         void t(); //sequential transpose
-        void t_m();  //multi thread transpose
-        void bufferTransposeFill(vector<int>& readBuffer, vector<int>& writeBuffer,
-                int rows, int cols, ofstream& fout);
+        void bufferTranspose(int * input, int * output, int n_rows, int n_rows2,
+            int row, int col);
 };
 
 #endif

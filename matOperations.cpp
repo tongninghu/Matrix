@@ -12,7 +12,7 @@
 #define HEAPSIZE 100
 using namespace std;
 
-mat& matOperations::mul(mat& A, mat& B) {
+mat& matOperations::mul(mat& A, mat& B, bool multiThread) {
     if (A.n_cols != B.n_rows) {
         cout << "Out of range!" << endl;
         exit;
@@ -38,29 +38,25 @@ mat& matOperations::mul(mat& A, mat& B) {
         generate(&writeBuffer[0], &writeBuffer[0] + B.n_cols, [](){return 0;});
 
         if (leftIsFile) finl.read((char *)&leftBuffer[0], sizeof(int) * A.n_cols);
-        else copy(&A.data[j * A.n_cols], &A.data[j * A.n_cols] + A.n_cols, &leftBuffer[0]);
+
+        int *left = (leftIsFile)? leftBuffer : &A.data[j * A.n_cols];
+        int *output = (toFile)? writeBuffer : &p->data[j * B.n_cols];
 
         for (int i = 0; i < B.n_rows / rows; i++) {
             if (rightIsFile) finr.read((char *)&rightBuffer[0], sizeof(int) * size);
-            else copy(&B.data[i * B.n_cols], &B.data[i * B.n_cols] + size, &rightBuffer[0]);
+            int *right = (rightIsFile)? rightBuffer : &B.data[i * B.n_cols];
 
-            bufferMultiply(leftBuffer, rightBuffer, writeBuffer, rows, B.n_cols);
+            bufferMultiply(left, right, output, rows, B.n_cols, multiThread);
         }
 
         if (A.n_cols % rows != 0) {
             if (rightIsFile) finr.read((char *)&rightBuffer[0], sizeof(int) * (A.n_cols % rows) * B.n_cols);
-            else copy(&B.data[B.n_rows / rows * B.n_cols],
-                &B.data[B.n_rows / rows * B.n_cols] + (A.n_cols % rows) * B.n_cols, &rightBuffer[0]);
+            int *right = (rightIsFile)? rightBuffer : &B.data[B.n_rows / rows * B.n_cols];
 
-            bufferMultiply(leftBuffer, rightBuffer, writeBuffer, A.n_cols % rows, B.n_cols);
+            bufferMultiply(left, right, output, A.n_cols % rows, B.n_cols, multiThread);
         }
 
-        if (toFile) {
-            fout.write((char *)&writeBuffer[0], sizeof(int) * B.n_cols);
-        }
-        else {
-            copy(&writeBuffer[0], &writeBuffer[0] + B.n_cols, &p->data[j * B.n_cols]);
-        }
+        if (toFile) fout.write((char *)&writeBuffer[0], sizeof(int) * B.n_cols);
 
         finr.clear();
         finr.seekg(0, ios::beg);
@@ -68,27 +64,24 @@ mat& matOperations::mul(mat& A, mat& B) {
     return *p;
 }
 
-void matOperations::bufferMultiply(int * leftBuffer, int * rightBuffer,
-      int * writeBuffer, int rows, int cols) {
-      for (int i = 0; i < rows; i++) {
-          for (int j = 0; j < cols; j++) {
-              writeBuffer[j] += leftBuffer[i] * rightBuffer[cols * i + j];
-          }
-      }
-}
+void matOperations::bufferMultiply(int * left, int * right, int * output,
+    int n_rows, int n_cols, bool multiThread) {
 
-mat& matOperations::mul_m(mat& A, mat& B) {
-    if (A.n_cols != B.n_rows) {
-        cout << "Out of range!" << endl;
+    if (!multiThread) {
+        for (int i = 0; i < n_rows; i++) {
+            for (int j = 0; j < n_cols; j++) {
+                output[j] += left[i] * right[n_cols * i + j];
+            }
+        }
     }
     else {
-        mat *p = new mat(A.n_rows, B.n_cols);
         pthread_t threads[num_thread];
-
         arg_struct Arg;
-        Arg.A = &A;
-        Arg.B = &B;
-        Arg.OUT = p;
+        Arg.left = left;
+        Arg.right = right;
+        Arg.output = output;
+        Arg.n_rows = n_rows;
+        Arg.n_cols = n_cols;
         for (int i = 0; i < num_thread; i++) {
             pthread_create(&threads[i], NULL, multiThread::multiply, (void *)&Arg);
         }
@@ -96,6 +89,5 @@ mat& matOperations::mul_m(mat& A, mat& B) {
             pthread_join(threads[i], NULL);
         }
         multiThread::core_multiply = 0;
-        return *p;
     }
 }

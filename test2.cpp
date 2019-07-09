@@ -12,31 +12,29 @@ using namespace std;
 
 
 int main(int argc, char * argv[]) {
-  mat A(40, 20);
-  A.fill(1);
-  A.print();
-  cout << endl;
-  /*
-  A.t();
-  A.print();  */
+    mat A(14, 11);
+    A.fillRand(0, 10);
+    A.print();
 
-  mat B(20, 18);
-  B.fill(1);
-  B.print();
-//  cout << endl << A.getElement(0, 4) << " " << A.getElement(1, 5) << endl;
- /*
-  mat C;
-  C = A;
-  A.t();
-  A.t_m();
-  cout << C.compare(A) << endl;
+    mat B(11, 9);
+    B.fillRand(0, 10);
+    B.print();
 
-  mat B(60, 110);
-  B.fillRand(0, 10);
-*/
-  cout << endl;
-  mat * t = &matOperations::mul(A, B);
-  t->print();
-  delete t;
-  return 0;
+    mat * t = &matOperations::mul(A, B, true);
+    t->print();
+    delete t;
+
+    mat C;
+    C = A;
+
+    mat * k = &matOperations::mul(C, B, true);
+    k->print();
+    delete k;
+/*
+    A.t();
+    A.print();
+
+    B.t();
+    B.print();   */
+    return 0;
 }
